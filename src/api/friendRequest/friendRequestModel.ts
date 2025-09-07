@@ -47,7 +47,7 @@ FriendRequestSchema.index(
   { unique: true, partialFilterExpression: { status: "pending" } }
 );
 
-export const FriendRequest = model<IFriendRequest>(
+export const FriendRequestModel = model<IFriendRequest>(
   "FriendRequest",
   FriendRequestSchema
 );

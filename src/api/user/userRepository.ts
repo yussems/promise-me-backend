@@ -92,7 +92,6 @@ export class UserRepository {
     return {
       authId: userDoc.authId.toString(),
       displayName: userDoc.displayName,
-      email: userDoc.email,
       name: userDoc.name,
       avatarUrl: userDoc.avatarUrl,
       friendCode: userDoc.friendCode,

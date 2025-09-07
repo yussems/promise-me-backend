@@ -31,10 +31,9 @@ const userSchema = new Schema<IUser>(
       index: true,
       unique: true,
     },
-    name: { type: String, required: true },
-    email: { type: String, index: true, sparse: true, unique: false },
-    displayName: String,
-    avatarUrl: String,
+    name: { type: String },
+    displayName: { type: String },
+    avatarUrl: { type: String },
     friendCode: { type: String, index: true, unique: true, sparse: true }, // normalize: A-Z0-9
     friendCodeEnabled: { type: Boolean, default: true },
     friendCodePrivacy: {
@@ -51,8 +50,7 @@ export const UserModel = mongoose.model<IUser>("User", userSchema);
 export type User = z.infer<typeof UserSchemaZod>;
 
 export const UserSchemaZod = z.object({
-  authId: z.string(), // Auth sistemi ile ilişkilendirmek için (ör: Auth0 user ID)
-  email: z.string().email().optional(),
+  authId: z.string(),
   name: z.string().max(100).optional(),
   displayName: z.string().max(100).optional(),
   avatarUrl: z.string().url().optional(),
@@ -61,12 +59,13 @@ export const UserSchemaZod = z.object({
     .min(16)
     .max(20)
     .regex(/^[A-Z0-9]+$/)
-    .optional(), // normalize: A-Z0-9
-  friendCodeEnabled: z.boolean().default(true),
+    .optional(),
+  friendCodeEnabled: z.boolean().default(true).optional(),
   friendCodePrivacy: z
     .enum(["anyone", "friendsOfFriends", "off"])
-    .default("anyone"),
-  friendAutoAccept: z.boolean().default(false),
+    .default("anyone")
+    .optional(),
+  friendAutoAccept: z.boolean().default(false).optional(),
 });
 export const createUserSchema = z.object({
   body: UserSchemaZod,
