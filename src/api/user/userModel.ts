@@ -1,94 +1,73 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import mongoose, { Schema, Document } from "mongoose";
-import { z } from "zod";
+import mongoose, { Schema, Types } from "mongoose";
+import z from "zod";
 
-import { commonValidations } from "@/common/utils/commonValidation";
-
+export type FriendCodePrivacy = "anyone" | "friendsOfFriends" | "off";
 extendZodWithOpenApi(z);
 
-// Mongoose Schema
-export interface IUser extends Document {
-	name: string;
-	email: string;
-	age: number;
-	createdAt: Date;
-	updatedAt: Date;
+export interface IUser {
+  authId: Types.ObjectId; // Auth sistemi ile ilişkilendirmek için (ör: Auth0 user ID)
+  // Auth ile ayrı tutacaksan email burada zorunlu olmayabilir.
+  name: string;
+  email?: string;
+  displayName?: string;
+  avatarUrl?: string;
+
+  // Kalıcı kod (Steam tarzı) — DB'de normalize (A-Z0-9, no dashes)
+  friendCode?: string; // ör: "7K2Q9M4DX8JH3PQA" (16-20 hane arası)
+  friendCodeEnabled: boolean;
+  friendCodePrivacy: FriendCodePrivacy;
+  friendAutoAccept: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
-
 const userSchema = new Schema<IUser>(
-	{
-		name: {
-			type: String,
-			required: [true, "Name is required"],
-			trim: true,
-			minlength: [2, "Name must be at least 2 characters long"],
-			maxlength: [50, "Name cannot exceed 50 characters"],
-		},
-		email: {
-			type: String,
-			required: [true, "Email is required"],
-			unique: true,
-			trim: true,
-			lowercase: true,
-			match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
-		},
-		age: {
-			type: Number,
-			required: [true, "Age is required"],
-			min: [0, "Age cannot be negative"],
-			max: [150, "Age cannot exceed 150"],
-		},
-	},
-	{
-		timestamps: true, // Automatically adds createdAt and updatedAt
-		toJSON: {
-			transform: (doc, ret) => {
-				ret.id = ret._id;
-				delete ret._id;
-				delete (ret as any).__v;
-				return ret;
-			},
-		},
-	}
+  {
+    authId: {
+      type: Schema.Types.ObjectId,
+      ref: "Auth",
+      required: true,
+      index: true,
+      unique: true,
+    },
+    name: { type: String, required: true },
+    email: { type: String, index: true, sparse: true, unique: false },
+    displayName: String,
+    avatarUrl: String,
+    friendCode: { type: String, index: true, unique: true, sparse: true }, // normalize: A-Z0-9
+    friendCodeEnabled: { type: Boolean, default: true },
+    friendCodePrivacy: {
+      type: String,
+      enum: ["anyone", "friendsOfFriends", "off"],
+      default: "anyone",
+    },
+    friendAutoAccept: { type: Boolean, default: false },
+  },
+  { timestamps: true }
 );
-
-// Create indexes
-userSchema.index({ email: 1 });
-userSchema.index({ createdAt: -1 });
-
 export const UserModel = mongoose.model<IUser>("User", userSchema);
 
-// Zod Schema for validation (keeping for API documentation)
-export type User = z.infer<typeof UserSchema>;
-export const UserSchema = z.object({
-	id: z.string(),
-	name: z.string().min(2).max(50),
-	email: z.string().email(),
-	age: z.number().min(0).max(150),
-	createdAt: z.date(),
-	updatedAt: z.date(),
-});
+export type User = z.infer<typeof UserSchemaZod>;
 
-// Input Validation for 'GET users/:id' endpoint
-export const GetUserSchema = z.object({
-	params: z.object({ id: z.string().min(1, "User ID is required") }),
+export const UserSchemaZod = z.object({
+  authId: z.string(), // Auth sistemi ile ilişkilendirmek için (ör: Auth0 user ID)
+  email: z.string().email().optional(),
+  name: z.string().max(100).optional(),
+  displayName: z.string().max(100).optional(),
+  avatarUrl: z.string().url().optional(),
+  friendCode: z
+    .string()
+    .min(16)
+    .max(20)
+    .regex(/^[A-Z0-9]+$/)
+    .optional(), // normalize: A-Z0-9
+  friendCodeEnabled: z.boolean().default(true),
+  friendCodePrivacy: z
+    .enum(["anyone", "friendsOfFriends", "off"])
+    .default("anyone"),
+  friendAutoAccept: z.boolean().default(false),
 });
-
-// Input Validation for creating a user
-export const CreateUserSchema = z.object({
-	body: z.object({
-		name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name cannot exceed 50 characters"),
-		email: z.string().email("Please enter a valid email"),
-		age: z.number().min(0, "Age cannot be negative").max(150, "Age cannot exceed 150"),
-	}),
-});
-
-// Input Validation for updating a user
-export const UpdateUserSchema = z.object({
-	params: z.object({ id: z.string().min(1, "User ID is required") }),
-	body: z.object({
-		name: z.string().min(2).max(50).optional(),
-		email: z.string().email().optional(),
-		age: z.number().min(0).max(150).optional(),
-	}),
+export const createUserSchema = z.object({
+  body: UserSchemaZod,
 });

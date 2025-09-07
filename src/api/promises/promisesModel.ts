@@ -36,7 +36,7 @@ const promisesSchema = new Schema<IPromises>(
 );
 
 export const PromisesModel = mongoose.model<IPromises>(
-  "Promises",
+  "Promise",
   promisesSchema
 );
 
