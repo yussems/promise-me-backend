@@ -3,12 +3,12 @@ import { Schema, model, Types } from "mongoose";
 
 export interface IPairingCode {
   _id: Types.ObjectId;
-  ownerId: Types.ObjectId; // kodu oluşturan (User)
-  codeHash: string; // SHA-256 (raw kodu saklama!)
+  ownerId: Types.ObjectId;
+  codeHash: string;
   used: boolean;
   usedAt?: Date;
-  usedBy?: Types.ObjectId; // redeem eden (User)
-  expiresAt: Date; // TTL
+  usedBy?: Types.ObjectId;
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }

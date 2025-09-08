@@ -8,6 +8,8 @@ import {
   LogoutSchema,
 } from "./authModel";
 import { userService } from "../user/userService";
+import { generateUniqueFriendCode } from "@/common/utils/friendCode";
+import { generateRandomName } from "@/common/utils/displayName";
 
 class AuthController {
   public register: RequestHandler = async (req: Request, res: Response) => {
@@ -18,6 +20,8 @@ class AuthController {
 
       const user = await userService.createUser({
         authId: String(result.responseObject._id),
+        friendCode: await generateUniqueFriendCode(),
+        displayName: generateRandomName(),
       });
 
       res.status(result.statusCode).send(result);
