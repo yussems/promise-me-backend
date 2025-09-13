@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { AuthService } from "@/api/auth/authService";
+import { AuthService, authService } from "@/api/auth/authService";
 
 // Extend the Request interface to include user information
 declare global {
@@ -16,7 +16,6 @@ declare global {
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const authHeader = req.headers.authorization;
-		
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			return res.status(StatusCodes.UNAUTHORIZED).json({
 				success: false,
@@ -27,7 +26,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 		}
 
 		const token = authHeader.substring(7); // Remove "Bearer " prefix
-		const result = await AuthService.verifyToken(token);
+		const result = await authService.verifyToken(token);
 
 		if (!result.success) {
 			return res.status(result.statusCode).json({
@@ -54,7 +53,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const authHeader = req.headers.authorization;
-		
+
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			// Continue without authentication
 			next();
@@ -62,7 +61,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 		}
 
 		const token = authHeader.substring(7);
-		const result = await AuthService.verifyToken(token);
+		const result = await authService.verifyToken(token);
 
 		if (result.success) {
 			// Add user information to request object
@@ -74,4 +73,4 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 		// Continue without authentication on error
 		next();
 	}
-}; 
+};

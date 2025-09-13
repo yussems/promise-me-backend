@@ -100,6 +100,32 @@ class AuthController {
 		const result = await authService.verifyToken(token);
 		res.status(result.statusCode).send(result);
 	};
+
+	public getMe: RequestHandler = async (req: Request, res: Response) => {
+		try {
+			const authId = req.user?.userId;
+			console.log("getMe", authId, "------------");
+
+			if (!authId) {
+				return res.status(StatusCodes.UNAUTHORIZED).send({
+					success: false,
+					message: "User not authenticated",
+					responseObject: null,
+					statusCode: StatusCodes.UNAUTHORIZED,
+				});
+			}
+
+			const result = await userService.findByAuthId(authId);
+			res.status(result.statusCode).send(result);
+		} catch {
+			res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+				success: false,
+				message: "Internal server error",
+				responseObject: null,
+				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			});
+		}
+	};
 }
 
 export const authController = new AuthController();
