@@ -1,100 +1,105 @@
 import type { Request, RequestHandler, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { AuthService } from "./authService";
-import {
-  LoginSchema,
-  RegisterSchema,
-  RefreshTokenSchema,
-  LogoutSchema,
-} from "./authModel";
-import { userService } from "../user/userService";
-import { generateUniqueFriendCode } from "@/common/utils/friendCode";
 import { generateRandomName } from "@/common/utils/displayName";
+import { generateUniqueFriendCode } from "@/common/utils/friendCode";
+import { userService } from "../user/userService";
+import { LoginSchema, LogoutSchema, RefreshTokenSchema, RegisterSchema } from "./authModel";
+import { authService } from "./authService";
 
 class AuthController {
-  public register: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { email, password, confirmPassword } =
-        RegisterSchema.parse(req).body;
-      const result = await AuthService.register(email, password);
+	public register: RequestHandler = async (req: Request, res: Response) => {
+		try {
+			const { email, password, confirmPassword } = RegisterSchema.parse(req).body;
 
-      const user = await userService.createUser({
-        authId: String(result.responseObject._id),
-        friendCode: await generateUniqueFriendCode(),
-        displayName: generateRandomName(),
-      });
+			// Register user
+			const registerResult = await authService.register(email, password);
 
-      res.status(result.statusCode).send(result);
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).send({
-        success: false,
-        message: "Invalid input data",
-        responseObject: null,
-        statusCode: StatusCodes.BAD_REQUEST,
-      });
-    }
-  };
+			if (!registerResult.success) {
+				return res.status(registerResult.statusCode).send(registerResult);
+			}
 
-  public login: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { email, password } = LoginSchema.parse(req).body;
-      const result = await AuthService.login(email, password);
-      res.status(result.statusCode).send(result);
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).send({
-        success: false,
-        message: "Invalid input data",
-        responseObject: null,
-        statusCode: StatusCodes.BAD_REQUEST,
-      });
-    }
-  };
+			// Create user profile
+			await userService.createUser({
+				authId: String(registerResult.responseObject._id),
+				friendCode: await generateUniqueFriendCode(),
+				displayName: generateRandomName(),
+			});
 
-  public refreshToken: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { refreshToken } = RefreshTokenSchema.parse(req).body;
-      const result = await AuthService.refreshToken(refreshToken);
-      res.status(result.statusCode).send(result);
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).send({
-        success: false,
-        message: "Invalid input data",
-        responseObject: null,
-        statusCode: StatusCodes.BAD_REQUEST,
-      });
-    }
-  };
+			// Auto login after registration
+			const loginResult = await authService.login(email, password);
 
-  public logout: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { refreshToken } = LogoutSchema.parse(req).body;
-      const result = await AuthService.logout(refreshToken);
-      res.status(result.statusCode).send(result);
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).send({
-        success: false,
-        message: "Invalid input data",
-        responseObject: null,
-        statusCode: StatusCodes.BAD_REQUEST,
-      });
-    }
-  };
+			res.status(loginResult.statusCode).send(loginResult);
+		} catch {
+			res.status(StatusCodes.BAD_REQUEST).send({
+				success: false,
+				message: "Invalid input data",
+				responseObject: null,
+				statusCode: StatusCodes.BAD_REQUEST,
+			});
+		}
+	};
 
-  public verifyToken: RequestHandler = async (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(StatusCodes.UNAUTHORIZED).send({
-        success: false,
-        message: "No token provided",
-        responseObject: null,
-        statusCode: StatusCodes.UNAUTHORIZED,
-      });
-    }
+	public login: RequestHandler = async (req: Request, res: Response) => {
+		try {
+			const { email, password } = LoginSchema.parse(req).body;
+			const result = await authService.login(email, password);
 
-    const token = authHeader.substring(7); // Remove "Bearer " prefix
-    const result = await AuthService.verifyToken(token);
-    res.status(result.statusCode).send(result);
-  };
+			res.status(result.statusCode).send(result);
+		} catch {
+			res.status(StatusCodes.BAD_REQUEST).send({
+				success: false,
+				message: "Invalid input data",
+				responseObject: null,
+				statusCode: StatusCodes.BAD_REQUEST,
+			});
+		}
+	};
+
+	public refreshToken: RequestHandler = async (req: Request, res: Response) => {
+		try {
+			const { refreshToken } = RefreshTokenSchema.parse(req).body;
+			const result = await authService.refreshToken(refreshToken);
+			res.status(result.statusCode).send(result);
+		} catch {
+			res.status(StatusCodes.BAD_REQUEST).send({
+				success: false,
+				message: "Invalid input data",
+				responseObject: null,
+				statusCode: StatusCodes.BAD_REQUEST,
+			});
+		}
+	};
+
+	public logout: RequestHandler = async (req: Request, res: Response) => {
+		try {
+			const { refreshToken } = LogoutSchema.parse(req).body;
+			const result = await authService.logout(refreshToken);
+			res.status(result.statusCode).send(result);
+		} catch {
+			res.status(StatusCodes.BAD_REQUEST).send({
+				success: false,
+				message: "Invalid input data",
+				responseObject: null,
+				statusCode: StatusCodes.BAD_REQUEST,
+			});
+		}
+	};
+
+	public verifyToken: RequestHandler = async (req: Request, res: Response) => {
+		const authHeader = req.headers.authorization;
+		if (!authHeader || !authHeader.startsWith("Bearer ")) {
+			return res.status(StatusCodes.UNAUTHORIZED).send({
+				success: false,
+				message: "No token provided",
+				responseObject: null,
+				statusCode: StatusCodes.UNAUTHORIZED,
+			});
+		}
+
+		const token = authHeader.substring(7); // Remove "Bearer " prefix
+		const result = await authService.verifyToken(token);
+		res.status(result.statusCode).send(result);
+	};
 }
 
 export const authController = new AuthController();
