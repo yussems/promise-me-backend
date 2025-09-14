@@ -23,7 +23,7 @@ export interface LoginResult {
 
 export class AuthService {
 	private generateTokens(userId: string): AuthTokens {
-		const accessToken = jwt.sign({ userId, type: "access" }, env.JWT_SECRET, { expiresIn: "15m" });
+		const accessToken = jwt.sign({ userId, type: "access" }, env.JWT_SECRET, { expiresIn: "1m" });
 
 		const refreshToken = jwt.sign({ userId, type: "refresh" }, env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
