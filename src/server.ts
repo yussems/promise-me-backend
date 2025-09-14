@@ -10,9 +10,9 @@ import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
-import { mongoConnection } from "@/common/database/mongoConnection";
-import { promisesRouter } from "./api/promises/promisesRouter";
 import { friendShipRouter } from "./api/friendShip/friendShipRouter";
+import { pairingCodeRouter } from "./api/pairingCode/pairingCodeRouter";
+import { promisesRouter } from "./api/promises/promisesRouter";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -34,6 +34,7 @@ app.use(requestLogger);
 app.use("/auth", authRouter);
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
+app.use("/pairing-codes", pairingCodeRouter);
 app.use("/promises", promisesRouter);
 app.use("/friendships", friendShipRouter);
 
