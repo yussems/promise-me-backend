@@ -10,6 +10,7 @@ import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
+import { friendRequestRouter } from "./api/friendRequest/friendRequestRouter";
 import { friendShipRouter } from "./api/friendShip/friendShipRouter";
 import { pairingCodeRouter } from "./api/pairingCode/pairingCodeRouter";
 import { promisesRouter } from "./api/promises/promisesRouter";
@@ -37,6 +38,7 @@ app.use("/users", userRouter);
 app.use("/pairing-codes", pairingCodeRouter);
 app.use("/promises", promisesRouter);
 app.use("/friendships", friendShipRouter);
+app.use("/friend-requests", friendRequestRouter);
 
 // Swagger UI
 app.use(openAPIRouter);

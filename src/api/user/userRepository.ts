@@ -68,6 +68,15 @@ export class UserRepository {
 		}
 	}
 
+	async findByFriendCodeAsync(friendCode: string): Promise<User | null> {
+		try {
+			const user = await UserModel.findOne({ friendCode });
+			return user ? this.mapToUser(user) : null;
+		} catch (error) {
+			throw new Error(`Failed to fetch user with friend code ${friendCode}: ${(error as Error).message}`);
+		}
+	}
+
 	private mapToUser(userDoc: IUser): User {
 		return {
 			authId: userDoc.authId.toString(),

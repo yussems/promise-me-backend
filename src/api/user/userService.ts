@@ -92,5 +92,18 @@ export class UserService {
 			return ServiceResponse.failure("Failed to update user", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	async findByFriendCode(friendCode: string): Promise<ServiceResponse<User | null>> {
+		try {
+			const user = await this.userRepository.findByFriendCodeAsync(friendCode);
+			if (!user) {
+				return ServiceResponse.failure("Friend code not found", null, StatusCodes.NOT_FOUND);
+			}
+			return ServiceResponse.success<User>("User found", user);
+		} catch (error) {
+			console.error("Error finding user by friend code:", error);
+			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+		}
+	}
 }
 export const userService = new UserService();

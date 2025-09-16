@@ -1,21 +1,20 @@
-import { FriendRequestModel } from "./friendRequestModel";
+import { type FriendRequest, FriendRequestModel, type IFriendRequest } from "./friendRequestModel";
 
-export class FriendShipRepository {
-  async areFriendsAsync(userId1: string, userId2: string): Promise<boolean> {
-    try {
-      const count = await FriendRequestModel.countDocuments({
-        $or: [
-          { user1Id: userId1, user2Id: userId2 },
-          { user1Id: userId2, user2Id: userId1 },
-        ],
-      });
-      return count > 0;
-    } catch (error) {
-      throw new Error(
-        `Failed to check friendship between ${userId1} and ${userId2}: ${
-          (error as Error).message
-        }`
-      );
-    }
-  }
+export class FriendRequestRepository {
+	async createFriendRequest(friendRequest: FriendRequest): Promise<FriendRequest> {
+		try {
+			const newFriendRequest = new FriendRequestModel(friendRequest);
+			const savedFriendRequest = await newFriendRequest.save();
+			return this.mapToFriendRequest(savedFriendRequest);
+		} catch (error) {
+			throw new Error(`Failed to create friend request: ${(error as Error).message}`);
+		}
+	}
+	private mapToFriendRequest(friendRequestDoc: IFriendRequest): FriendRequest {
+		return {
+			fromUserId: friendRequestDoc.fromUserId.toString(),
+			toUserId: friendRequestDoc.toUserId.toString(),
+			status: friendRequestDoc.status,
+		};
+	}
 }
