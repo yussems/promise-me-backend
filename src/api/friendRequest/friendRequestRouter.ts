@@ -10,3 +10,4 @@ friendRequestRouter.post(
 	authenticateToken, // Auth middleware
 	friendRequestController.sendByCode,
 );
+friendRequestRouter.get("/find-mine", authenticateToken, friendRequestController.findMine);

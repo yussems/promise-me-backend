@@ -13,6 +13,7 @@ class AuthController {
 
 			// Register user
 			const registerResult = await authService.register(email, password);
+			console.log(registerResult, "-------");
 
 			if (!registerResult.success) {
 				return res.status(registerResult.statusCode).send(registerResult);
@@ -103,8 +104,7 @@ class AuthController {
 
 	public getMe: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const authId = req.user?.userId;
-			console.log("getMe", authId, "------------");
+			const authId = req.user?.authId;
 
 			if (!authId) {
 				return res.status(StatusCodes.UNAUTHORIZED).send({

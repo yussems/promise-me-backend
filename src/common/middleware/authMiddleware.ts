@@ -39,6 +39,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
 		// Add user information to request object
 		req.user = result.responseObject;
+		console.log(req.user, "req.user");
+
 		next();
 	} catch (error) {
 		return res.status(StatusCodes.UNAUTHORIZED).json({

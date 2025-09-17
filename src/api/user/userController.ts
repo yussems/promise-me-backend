@@ -13,7 +13,6 @@ class UserController {
 	findByAuthId: RequestHandler = async (req: Request, res: Response) => {
 		const { authId } = req.params;
 		const result = await userService.findByAuthId(authId);
-		console.log("findByAuthId", result, "------------");
 
 		res.status(result.statusCode).send(result);
 	};

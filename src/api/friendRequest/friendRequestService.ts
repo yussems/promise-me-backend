@@ -29,7 +29,19 @@ export class FriendRequestService {
 			);
 		}
 	}
-
+	async findMineAsync(userId: string, status: string): Promise<ServiceResponse<FriendRequest[]>> {
+		try {
+			const friendRequests = await this.friendRequestRepository.findMineAsync(userId, status);
+			return ServiceResponse.success("Friend requests found successfully", friendRequests);
+		} catch (error) {
+			console.error("Error finding friend requests:", error);
+			return ServiceResponse.failure(
+				"Failed to find friend requests",
+				null as unknown as FriendRequest[],
+				StatusCodes.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
 	async sendFriendRequestByCode(fromUserId: string, friendCode: string): Promise<ServiceResponse<FriendRequest>> {
 		try {
 			// Friend code ile kullanıcıyı bul

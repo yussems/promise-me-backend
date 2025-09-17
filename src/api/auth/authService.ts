@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import { env } from "@/common/utils/envConfig";
+import { UserModel } from "../user/userModel";
 import { AuthModel, type IAuth } from "./authModel";
 
 export interface AuthTokens {
@@ -168,12 +169,22 @@ export class AuthService {
 			}
 
 			// Check if user exists and is active
-			const user = await AuthModel.findById(decoded.userId);
-			if (!user || !user.isActive) {
+			const auth = await AuthModel.findById(decoded.userId);
+
+			if (!auth || !auth.isActive) {
 				return ServiceResponse.failure("User not found or inactive", null as any, 401);
 			}
+			const user = await UserModel.findOne({ authId: auth._id });
+			if (!user) {
+				return ServiceResponse.failure("User profile not found", null as any, 401);
+			}
+			console.log(auth, "auth");
 
-			return ServiceResponse.success("Token verified successfully", { userId: decoded.userId }, 200);
+			return ServiceResponse.success(
+				"Token verified successfully",
+				{ authId: decoded.userId, userId: user?._id.toString() },
+				200,
+			);
 		} catch (error) {
 			return ServiceResponse.failure("Invalid token", null as any, 401);
 		}

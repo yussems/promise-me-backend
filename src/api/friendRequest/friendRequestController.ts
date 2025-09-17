@@ -16,6 +16,17 @@ class FriendRequestController {
 		const result = await friendRequestService.sendFriendRequestByCode(fromUserId, friendCode);
 		httpHandler(res, result);
 	};
+	findMine: RequestHandler = async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		const status = req.query.status as string; // Query parameter'dan al
+
+		if (!userId) {
+			return httpHandler(res, ServiceResponse.failure("User not found", null, StatusCodes.UNAUTHORIZED));
+		}
+
+		const result = await friendRequestService.findMineAsync(userId, status);
+		httpHandler(res, result);
+	};
 }
 
 export const friendRequestController = new FriendRequestController();
