@@ -7,6 +7,7 @@ import { friendRequestService } from "./friendRequestService";
 class FriendRequestController {
 	sendByCode: RequestHandler = async (req: Request, res: Response) => {
 		const fromUserId = req.user?.userId; // Auth middleware'den al
+		console.log("fromUserId", fromUserId);
 		const { friendCode } = req.params;
 
 		if (!fromUserId) {

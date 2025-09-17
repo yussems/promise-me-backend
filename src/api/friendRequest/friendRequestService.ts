@@ -57,7 +57,7 @@ export class FriendRequestService {
 			// Arkadaşlık isteği oluştur
 			const friendRequestData = {
 				fromUserId,
-				toUserId: targetUser.responseObject.authId,
+				toUserId: targetUser.responseObject._id,
 				status: "pending",
 			};
 

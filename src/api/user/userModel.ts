@@ -6,6 +6,7 @@ export type FriendCodePrivacy = "anyone" | "friendsOfFriends" | "off";
 extendZodWithOpenApi(z);
 
 export interface IUser {
+	_id: Types.ObjectId;
 	authId: Types.ObjectId; // Auth sistemi ile ilişkilendirmek için (ör: Auth0 user ID)
 	// Auth ile ayrı tutacaksan email burada zorunlu olmayabilir.
 	name: string;
@@ -50,6 +51,7 @@ export const UserModel = mongoose.model<IUser>("User", userSchema);
 export type User = z.infer<typeof UserSchemaZod>;
 
 export const UserSchemaZod = z.object({
+	_id: z.string(),
 	authId: z.string(),
 	name: z.string().max(100).optional(),
 	displayName: z.string().max(100).optional(),

@@ -79,6 +79,7 @@ export class UserRepository {
 
 	private mapToUser(userDoc: IUser): User {
 		return {
+			_id: userDoc._id.toString(),
 			authId: userDoc.authId.toString(),
 			displayName: userDoc.displayName,
 			name: userDoc.name,
