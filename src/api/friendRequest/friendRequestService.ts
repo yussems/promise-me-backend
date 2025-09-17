@@ -1,19 +1,23 @@
 import { StatusCodes } from "http-status-codes";
 import { UserService } from "@/api/user/userService";
 import { ServiceResponse } from "@/common/models/serviceResponse";
+import { FriendShipService } from "../friendShip/friendShipService";
 import type { FriendRequest } from "./friendRequestModel";
 import { FriendRequestRepository, type PopulatedFriendRequest } from "./friendRequestRepository";
 
 export class FriendRequestService {
 	private friendRequestRepository: FriendRequestRepository;
 	private userService: UserService;
+	private friendShipService: FriendShipService;
 
 	constructor(
 		repository: FriendRequestRepository = new FriendRequestRepository(),
 		userService: UserService = new UserService(),
+		friendShipService: FriendShipService = new FriendShipService(),
 	) {
 		this.friendRequestRepository = repository;
 		this.userService = userService;
+		this.friendShipService = friendShipService;
 	}
 
 	async createFriendRequest(friendRequest: FriendRequest): Promise<ServiceResponse<FriendRequest>> {
@@ -89,6 +93,47 @@ export class FriendRequestService {
 			console.error("Error sending friend request by code:", error);
 			return ServiceResponse.failure(
 				"Failed to send friend request",
+				null as unknown as FriendRequest,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+	async acceptFriendRequest(friendRequestId: string): Promise<ServiceResponse<FriendRequest>> {
+		try {
+			const friendRequest = await this.friendRequestRepository.acceptFriendRequest(friendRequestId);
+			if (!friendRequest) {
+				return ServiceResponse.failure(
+					"Friend request not found",
+					null as unknown as FriendRequest,
+					StatusCodes.NOT_FOUND,
+				);
+			}
+			await this.friendShipService.createFriendShip(friendRequest.fromUserId, friendRequest.toUserId);
+			return ServiceResponse.success("Friend request accepted successfully", friendRequest);
+		} catch (error) {
+			console.error("Error accepting friend request:", error);
+			return ServiceResponse.failure(
+				"Failed to accept friend request",
+				null as unknown as FriendRequest,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+	async rejectFriendRequest(friendRequestId: string): Promise<ServiceResponse<FriendRequest>> {
+		try {
+			const friendRequest = await this.friendRequestRepository.rejectFriendRequest(friendRequestId);
+			if (!friendRequest) {
+				return ServiceResponse.failure(
+					"Friend request not found",
+					null as unknown as FriendRequest,
+					StatusCodes.NOT_FOUND,
+				);
+			}
+			return ServiceResponse.success("Friend request rejected successfully", friendRequest);
+		} catch (error) {
+			console.error("Error rejecting friend request:", error);
+			return ServiceResponse.failure(
+				"Failed to reject friend request",
 				null as unknown as FriendRequest,
 				StatusCodes.INTERNAL_SERVER_ERROR,
 			);

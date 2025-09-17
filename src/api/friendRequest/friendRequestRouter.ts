@@ -11,3 +11,5 @@ friendRequestRouter.post(
 	friendRequestController.sendByCode,
 );
 friendRequestRouter.get("/find-mine", authenticateToken, friendRequestController.findMine);
+friendRequestRouter.post("/accept/:friendRequestId", authenticateToken, friendRequestController.accept);
+friendRequestRouter.post("/reject/:friendRequestId", authenticateToken, friendRequestController.reject);

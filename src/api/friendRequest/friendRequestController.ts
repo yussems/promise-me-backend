@@ -27,6 +27,26 @@ class FriendRequestController {
 		const result = await friendRequestService.findMineAsync(userId, status);
 		httpHandler(res, result);
 	};
+	accept: RequestHandler = async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		const { friendRequestId } = req.params;
+
+		if (!userId) {
+			return httpHandler(res, ServiceResponse.failure("User not found", null, StatusCodes.UNAUTHORIZED));
+		}
+		const result = await friendRequestService.acceptFriendRequest(friendRequestId);
+		httpHandler(res, result);
+	};
+	reject: RequestHandler = async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		const { friendRequestId } = req.params;
+
+		if (!userId) {
+			return httpHandler(res, ServiceResponse.failure("User not found", null, StatusCodes.UNAUTHORIZED));
+		}
+		const result = await friendRequestService.rejectFriendRequest(friendRequestId);
+		httpHandler(res, result);
+	};
 }
 
 export const friendRequestController = new FriendRequestController();
