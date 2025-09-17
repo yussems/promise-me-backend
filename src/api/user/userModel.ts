@@ -32,9 +32,9 @@ const userSchema = new Schema<IUser>(
 			index: true,
 			unique: true,
 		},
-		name: { type: String },
+		name: { type: String, default: null },
 		displayName: { type: String },
-		avatarUrl: { type: String },
+		avatarUrl: { type: String, default: null },
 		friendCode: { type: String, index: true, unique: true, sparse: true }, // normalize: A-Z0-9
 		friendCodeEnabled: { type: Boolean, default: true },
 		friendCodePrivacy: {

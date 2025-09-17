@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { UserService } from "@/api/user/userService";
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import type { FriendRequest } from "./friendRequestModel";
-import { FriendRequestRepository } from "./friendRequestRepository";
+import { FriendRequestRepository, type PopulatedFriendRequest } from "./friendRequestRepository";
 
 export class FriendRequestService {
 	private friendRequestRepository: FriendRequestRepository;
@@ -29,7 +29,7 @@ export class FriendRequestService {
 			);
 		}
 	}
-	async findMineAsync(userId: string, status: string): Promise<ServiceResponse<FriendRequest[]>> {
+	async findMineAsync(userId: string, status: string): Promise<ServiceResponse<PopulatedFriendRequest[]>> {
 		try {
 			const friendRequests = await this.friendRequestRepository.findMineAsync(userId, status);
 			return ServiceResponse.success("Friend requests found successfully", friendRequests);
@@ -37,7 +37,7 @@ export class FriendRequestService {
 			console.error("Error finding friend requests:", error);
 			return ServiceResponse.failure(
 				"Failed to find friend requests",
-				null as unknown as FriendRequest[],
+				null as unknown as PopulatedFriendRequest[],
 				StatusCodes.INTERNAL_SERVER_ERROR,
 			);
 		}
@@ -51,6 +51,28 @@ export class FriendRequestService {
 					"Friend code not found",
 					null as unknown as FriendRequest,
 					StatusCodes.NOT_FOUND,
+				);
+			}
+
+			// Kendine arkadaşlık isteği gönderemez
+			if (fromUserId === targetUser.responseObject._id) {
+				return ServiceResponse.failure(
+					"Cannot send friend request to yourself",
+					null as unknown as FriendRequest,
+					StatusCodes.BAD_REQUEST,
+				);
+			}
+
+			// Zaten arkadaşlık isteği var mı kontrol et
+			const existingRequest = await this.friendRequestRepository.findExistingRequest(
+				fromUserId,
+				targetUser.responseObject._id,
+			);
+			if (existingRequest) {
+				return ServiceResponse.failure(
+					"Friend request already exists",
+					null as unknown as FriendRequest,
+					StatusCodes.CONFLICT,
 				);
 			}
 
