@@ -7,7 +7,7 @@ export class FriendShipRepository {
 		})
 			.select("userIdOne userIdTwo")
 			.sort({ updatedAt: -1, _id: -1 })
-			.populate([
+			.populate<IFriendshipPopulated>([
 				{ path: "userIdOne", select: "name displayName avatarUrl" },
 				{ path: "userIdTwo", select: "name displayName avatarUrl" },
 			])
