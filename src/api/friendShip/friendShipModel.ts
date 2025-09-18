@@ -1,4 +1,5 @@
 import { model, Schema, type Types } from "mongoose";
+import type { IUser } from "@/api/user/userModel";
 
 export interface IFriendship {
 	_id: Types.ObjectId;
@@ -7,6 +8,24 @@ export interface IFriendship {
 	since: Date;
 	createdAt: Date;
 	updatedAt: Date;
+}
+
+// Populate edilmiş versiyonu için
+export interface IFriendshipPopulated {
+	_id: Types.ObjectId;
+	userIdOne: IUser;
+	userIdTwo: IUser;
+	since: Date;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+// Friend listesi için sadece gerekli alanlar
+export interface FriendSummary {
+	_id: string;
+	name: string;
+	displayName?: string;
+	avatarUrl?: string;
 }
 
 const FriendshipSchema = new Schema<IFriendship>(

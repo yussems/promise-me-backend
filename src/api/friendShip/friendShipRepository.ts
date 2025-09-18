@@ -1,18 +1,21 @@
-import { FriendshipModel, type IFriendship } from "./friendShipModel";
+import { FriendshipModel, type IFriendship, type IFriendshipPopulated } from "./friendShipModel";
 
 export class FriendShipRepository {
-	async findAllAsync(): Promise<IFriendship[]> {
-		try {
-			return await FriendshipModel.find().sort({ createdAt: -1 });
-		} catch (error) {
-			throw new Error(`Failed to fetch friendships: ${(error as Error).message}`);
-		}
+	async findAllByUserIdAsync(userId: string): Promise<IFriendshipPopulated[]> {
+		const rels = await FriendshipModel.find({
+			$or: [{ userIdOne: userId }, { userIdTwo: userId }],
+		})
+			.select("userIdOne userIdTwo")
+			.sort({ updatedAt: -1, _id: -1 })
+			.populate([
+				{ path: "userIdOne", select: "name displayName avatarUrl" },
+				{ path: "userIdTwo", select: "name displayName avatarUrl" },
+			])
+			.lean();
+		return rels;
 	}
+
 	async createFriendShip(userIdOne: string, userIdTwo: string): Promise<IFriendship> {
-		try {
-			return await FriendshipModel.create({ userIdOne, userIdTwo });
-		} catch (error) {
-			throw new Error(`Failed to create friendship: ${(error as Error).message}`);
-		}
+		return await FriendshipModel.create({ userIdOne, userIdTwo });
 	}
 }
