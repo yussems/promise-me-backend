@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import type { User } from "@/api/user/userModel";
 import { type IUser, UserModel } from "@/api/user/userModel";
 
@@ -20,9 +21,14 @@ export class UserRepository {
 		}
 	}
 
-	async createAsync(userData: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
+	async createAsync(userData: Omit<User, "_id" | "createdAt" | "updatedAt">): Promise<User> {
 		try {
-			const newUser = new UserModel(userData);
+			// Convert string authId to ObjectId for MongoDB
+			const mongoUserData = {
+				...userData,
+				authId: new mongoose.Types.ObjectId(userData.authId),
+			};
+			const newUser = new UserModel(mongoUserData);
 			const savedUser = await newUser.save();
 			return this.mapToUser(savedUser);
 		} catch (error) {
@@ -33,7 +39,10 @@ export class UserRepository {
 		}
 	}
 
-	async updateAsync(id: string, userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>): Promise<User | null> {
+	async updateAsync(
+		id: string,
+		userData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
+	): Promise<User | null> {
 		try {
 			const updatedUser = await UserModel.findByIdAndUpdate(
 				id,
@@ -51,7 +60,7 @@ export class UserRepository {
 
 	async updateByAuthIdAsync(
 		authId: string,
-		userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>,
+		userData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
 	): Promise<User | null> {
 		try {
 			const updatedUser = await UserModel.findOneAndUpdate(

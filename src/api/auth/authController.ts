@@ -9,7 +9,7 @@ import { authService } from "./authService";
 class AuthController {
 	public register: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const { email, password, confirmPassword } = RegisterSchema.parse(req).body;
+			const { email, password } = RegisterSchema.parse(req).body;
 
 			// Register user
 			const registerResult = await authService.register(email, password);
@@ -44,6 +44,7 @@ class AuthController {
 		try {
 			const { email, password } = LoginSchema.parse(req).body;
 			const result = await authService.login(email, password);
+			console.log(result, "result, login");
 
 			res.status(result.statusCode).send(result);
 		} catch {

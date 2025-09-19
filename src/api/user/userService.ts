@@ -11,7 +11,7 @@ export class UserService {
 		this.userRepository = repository;
 	}
 
-	async createUser(userData: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<ServiceResponse<User | null>> {
+	async createUser(userData: Omit<User, "_id" | "createdAt" | "updatedAt">): Promise<ServiceResponse<User | null>> {
 		try {
 			const newUser = await this.userRepository.createAsync(userData);
 			return ServiceResponse.success<User>("User created successfully", newUser);
@@ -22,7 +22,7 @@ export class UserService {
 	}
 	async updateUser(
 		userId: string,
-		updateData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>,
+		updateData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
 	): Promise<ServiceResponse<User | null>> {
 		try {
 			const updatedUser = await this.userRepository.updateAsync(userId, updateData);
@@ -63,7 +63,7 @@ export class UserService {
 
 	async createByAuthId(
 		authId: string,
-		userData: Omit<User, "id" | "createdAt" | "updatedAt" | "authId">,
+		userData: Omit<User, "_id" | "createdAt" | "updatedAt" | "authId">,
 	): Promise<ServiceResponse<User | null>> {
 		try {
 			const newUser = await this.userRepository.createAsync({
@@ -79,7 +79,7 @@ export class UserService {
 
 	async updateByAuthId(
 		authId: string,
-		updateData: Partial<Omit<User, "id" | "createdAt" | "updatedAt" | "authId">>,
+		updateData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt" | "authId">>,
 	): Promise<ServiceResponse<User | null>> {
 		try {
 			const updatedUser = await this.userRepository.updateByAuthIdAsync(authId, updateData);

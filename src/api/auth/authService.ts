@@ -160,7 +160,7 @@ export class AuthService {
 		}
 	}
 
-	async verifyToken(token: string): Promise<ServiceResponse<{ userId: string }>> {
+	async verifyToken(token: string): Promise<ServiceResponse<{ authId: string; userId: string }>> {
 		try {
 			const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string; type: string };
 
