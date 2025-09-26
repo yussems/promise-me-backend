@@ -1,26 +1,11 @@
-import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import express, { type Router } from "express";
-import { createPromisesSchema, PromisesSchema } from "./promisesModel";
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
-import { z } from "zod";
 import { authenticateToken } from "@/common/middleware/authMiddleware";
-import { promisesController } from "./promisesController";
 import { validateRequest } from "@/common/utils/httpHandlers";
+import { promisesController } from "./promisesController";
+import { createPromiseSchema } from "./promisesModel";
 
-export const promiseRegistery = new OpenAPIRegistry();
 export const promisesRouter: Router = express.Router();
 
-promiseRegistery.register("Promises", PromisesSchema);
+//promisesRouter.post("/", authenticateToken, validateRequest(createPromiseSchema), promisesController.create);
 
-promiseRegistery.registerPath({
-  method: "get",
-  path: "/promises",
-  responses: createApiResponse(z.array(PromisesSchema), "Success"),
-});
-
-promisesRouter.post(
-  "/",
-  //  authenticateToken,
-  validateRequest(createPromisesSchema),
-  promisesController.createPromise
-);
+promisesRouter.post("/", authenticateToken, promisesController.create);
