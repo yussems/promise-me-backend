@@ -48,6 +48,15 @@ export class PromisesService {
 			return ServiceResponse.failure("Failed to create promise", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+	async findByUserId(userId: string): Promise<ServiceResponse<PromiseData[] | null>> {
+		try {
+			const promises = await this.promisesRepository.findByUserIdAsync(userId);
+			return ServiceResponse.success("Promises found successfully", promises);
+		} catch (error) {
+			console.error("Error finding promises:", error);
+			return ServiceResponse.failure("Failed to find promises", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
 
 export const promisesService = new PromisesService();

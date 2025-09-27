@@ -9,3 +9,4 @@ export const promisesRouter: Router = express.Router();
 //promisesRouter.post("/", authenticateToken, validateRequest(createPromiseSchema), promisesController.create);
 
 promisesRouter.post("/", authenticateToken, promisesController.create);
+promisesRouter.get("/", authenticateToken, promisesController.findByUserId);
