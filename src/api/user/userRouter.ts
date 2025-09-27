@@ -12,3 +12,5 @@ userRouter.get("/:id", authenticateToken, userController.findById);
 userRouter.post("/auth/:authId", authenticateToken, validateRequest(createUserSchema), userController.createByAuthId);
 
 userRouter.put("/auth/:authId", authenticateToken, validateRequest(createUserSchema), userController.updateByAuthId);
+
+userRouter.put("/avatar/:id", authenticateToken, userController.updateAvatarUrl);

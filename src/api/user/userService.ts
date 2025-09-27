@@ -3,12 +3,14 @@ import { StatusCodes } from "http-status-codes";
 import type { User } from "@/api/user/userModel";
 import { UserRepository } from "@/api/user/userRepository";
 import { ServiceResponse } from "@/common/models/serviceResponse";
+import { FileService } from "../upload/fileService";
 
 export class UserService {
 	private userRepository: UserRepository;
-
-	constructor(repository: UserRepository = new UserRepository()) {
+	private fileService: FileService;
+	constructor(repository: UserRepository = new UserRepository(), fileService: FileService = new FileService()) {
 		this.userRepository = repository;
+		this.fileService = fileService;
 	}
 
 	async createUser(userData: Omit<User, "_id" | "createdAt" | "updatedAt">): Promise<ServiceResponse<User | null>> {
@@ -92,7 +94,36 @@ export class UserService {
 			return ServiceResponse.failure("Failed to update user", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+	async updateAvatarUrl(
+		userId: string,
+		filename: string,
+		contentType: string,
+	): Promise<ServiceResponse<{ uploadUrl: string; user: any } | null>> {
+		try {
+			// 1) File kaydı oluştur + pre-signed uploadUrl üret
+			const { file, uploadUrl } = await this.fileService.requestUpload(userId, filename, contentType, {
+				kind: "user",
+				itemId: userId,
+			});
+			// 2) avatarUrl hazırla (ister API download endpoint, ister R2 public URL)
+			const avatarUrl = `/files/${file._id}/download`;
+			// 3) user tablosunda avatarUrl güncelle
+			const updatedUser = await this.userRepository.updateAvatarUrlAsync(userId, avatarUrl);
 
+			if (!updatedUser) {
+				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+			}
+
+			// 4) uploadUrl + updatedUser dön
+			return ServiceResponse.success("Avatar url updated successfully", {
+				uploadUrl,
+				user: updatedUser,
+			});
+		} catch (error) {
+			console.error("Error updating avatar url:", error);
+			return ServiceResponse.failure("Failed to update avatar url", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 	async findByFriendCode(friendCode: string): Promise<ServiceResponse<User | null>> {
 		try {
 			const user = await this.userRepository.findByFriendCodeAsync(friendCode);

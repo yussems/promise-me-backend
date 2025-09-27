@@ -85,6 +85,18 @@ export class UserRepository {
 			throw new Error(`Failed to fetch user with friend code ${friendCode}: ${(error as Error).message}`);
 		}
 	}
+	async updateAvatarUrlAsync(id: string, avatarUrl: string): Promise<User | null> {
+		try {
+			console.log(id, avatarUrl, "----------5---");
+
+			const updatedUser = await UserModel.findByIdAndUpdate(id, { avatarUrl }, { new: true });
+			console.log(updatedUser, "----------6---");
+
+			return updatedUser ? this.mapToUser(updatedUser) : null;
+		} catch (error) {
+			throw new Error(`Failed to update avatar url for user with id ${id}: ${(error as Error).message}`);
+		}
+	}
 
 	private mapToUser(userDoc: IUser): User {
 		return {
