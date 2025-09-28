@@ -13,7 +13,6 @@ class AuthController {
 
 			// Register user
 			const registerResult = await authService.register(email, password);
-			console.log(registerResult, "-------");
 
 			if (!registerResult.success) {
 				return res.status(registerResult.statusCode).send(registerResult);
@@ -23,6 +22,8 @@ class AuthController {
 			await userService.createUser({
 				authId: String(registerResult.responseObject._id),
 				friendCode: await generateUniqueFriendCode(),
+				friendCodeEnabled: true,
+				friendAutoAccept: false,
 				displayName: generateRandomName(),
 			});
 
