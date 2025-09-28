@@ -24,13 +24,6 @@ class UserController {
 		const result = await userService.createByAuthId(authId, userData);
 		httpHandler(res, result);
 	};
-
-	updateByAuthId: RequestHandler = async (req: Request, res: Response) => {
-		const { authId } = req.params;
-		const updateData = req.body;
-		const result = await userService.updateByAuthId(authId, updateData);
-		httpHandler(res, result);
-	};
 	updateAvatarUrl: RequestHandler = async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const { filename, contentType } = req.body;
@@ -43,6 +36,20 @@ class UserController {
 			console.error("Error in updateAvatarUrl controller:", error);
 			httpHandler(res, ServiceResponse.failure("Internal server error", null, StatusCodes.INTERNAL_SERVER_ERROR));
 		}
+	};
+	updateById: RequestHandler = async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		const updateData = req.body;
+		if (!userId) {
+			return res.status(StatusCodes.UNAUTHORIZED).send({
+				success: false,
+				message: "User not authenticated",
+				responseObject: null,
+				statusCode: StatusCodes.UNAUTHORIZED,
+			});
+		}
+		const result = await userService.updateById(userId, updateData);
+		httpHandler(res, result);
 	};
 }
 

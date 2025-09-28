@@ -22,21 +22,7 @@ export class UserService {
 			return ServiceResponse.failure("Failed to create user", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
-	async updateUser(
-		userId: string,
-		updateData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
-	): Promise<ServiceResponse<User | null>> {
-		try {
-			const updatedUser = await this.userRepository.updateAsync(userId, updateData);
-			if (!updatedUser) {
-				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
-			}
-			return ServiceResponse.success<User>("User updated successfully", updatedUser);
-		} catch (error) {
-			console.error("Error updating user:", error);
-			return ServiceResponse.failure("Failed to update user", null, StatusCodes.INTERNAL_SERVER_ERROR);
-		}
-	}
+
 	async findById(id: string): Promise<ServiceResponse<User | null>> {
 		try {
 			const user = await this.userRepository.findByIdAsync(id);
@@ -79,21 +65,6 @@ export class UserService {
 		}
 	}
 
-	async updateByAuthId(
-		authId: string,
-		updateData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt" | "authId">>,
-	): Promise<ServiceResponse<User | null>> {
-		try {
-			const updatedUser = await this.userRepository.updateByAuthIdAsync(authId, updateData);
-			if (!updatedUser) {
-				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
-			}
-			return ServiceResponse.success<User>("User updated successfully", updatedUser);
-		} catch (error) {
-			console.error("Error updating user:", error);
-			return ServiceResponse.failure("Failed to update user", null, StatusCodes.INTERNAL_SERVER_ERROR);
-		}
-	}
 	async updateAvatarUrl(
 		userId: string,
 		filename: string,
@@ -134,6 +105,21 @@ export class UserService {
 		} catch (error) {
 			console.error("Error finding user by friend code:", error);
 			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+		}
+	}
+	async updateById(
+		id: string,
+		updateData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
+	): Promise<ServiceResponse<User | null>> {
+		try {
+			const updatedUser = await this.userRepository.updateByIdAsync(id, updateData);
+			if (!updatedUser) {
+				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+			}
+			return ServiceResponse.success<User>("User updated successfully", updatedUser);
+		} catch (error) {
+			console.error("Error updating user:", error);
+			return ServiceResponse.failure("Failed to update user", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

@@ -39,25 +39,6 @@ export class UserRepository {
 		}
 	}
 
-	async updateAsync(
-		id: string,
-		userData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
-	): Promise<User | null> {
-		try {
-			const updatedUser = await UserModel.findByIdAndUpdate(
-				id,
-				{ ...userData, updatedAt: new Date() },
-				{ new: true, runValidators: true },
-			);
-			return updatedUser ? this.mapToUser(updatedUser) : null;
-		} catch (error) {
-			if ((error as Error & { code?: number }).code === 11000) {
-				throw new Error("User with this email already exists");
-			}
-			throw new Error(`Failed to update user with id ${id}: ${(error as Error).message}`);
-		}
-	}
-
 	async updateByAuthIdAsync(
 		authId: string,
 		userData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
@@ -95,6 +76,17 @@ export class UserRepository {
 			return updatedUser ? this.mapToUser(updatedUser) : null;
 		} catch (error) {
 			throw new Error(`Failed to update avatar url for user with id ${id}: ${(error as Error).message}`);
+		}
+	}
+	async updateByIdAsync(
+		id: string,
+		userData: Partial<Omit<User, "_id" | "createdAt" | "updatedAt">>,
+	): Promise<User | null> {
+		try {
+			const updatedUser = await UserModel.findByIdAndUpdate(id, userData, { new: true });
+			return updatedUser ? this.mapToUser(updatedUser) : null;
+		} catch (error) {
+			throw new Error(`Failed to update user with id ${id}: ${(error as Error).message}`);
 		}
 	}
 
