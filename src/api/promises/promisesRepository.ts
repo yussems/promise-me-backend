@@ -140,24 +140,12 @@ export class PromisesRepository {
 		}
 	}
 
-	async findByUserIdAsync(
-		userId: string,
-		filters?: {
-			type?: PromiseType;
-			status?: PromiseStatus;
-			visibility?: "private" | "friends" | "link";
-		},
-	): Promise<PromiseData[]> {
+	async findByUserIdAsync(userId: string): Promise<PromiseData[]> {
 		try {
 			const query: Record<string, unknown> = {
 				"participants.userId": new mongoose.Types.ObjectId(userId),
 				deletedAt: { $exists: false },
 			};
-
-			if (filters?.type) query.type = filters.type;
-			if (filters?.status) query.status = filters.status;
-			if (filters?.visibility) query.visibility = filters.visibility;
-
 			const promises = await PromiseModel.find(query).sort({ updatedAt: -1 });
 			return promises.map((promise) => this.mapToPromise(promise));
 		} catch (error) {

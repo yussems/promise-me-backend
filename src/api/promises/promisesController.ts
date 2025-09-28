@@ -6,7 +6,16 @@ import { promisesService } from "./promisesService";
 
 class PromisesController {
 	create: RequestHandler = async (req: Request, res: Response) => {
-		const promiseData = req.body;
+		const userId = req.user?.userId;
+		if (!userId) {
+			return httpHandler(res, ServiceResponse.failure("User not authenticated", null, StatusCodes.UNAUTHORIZED));
+		}
+
+		const promiseData = {
+			...req.body,
+			createdBy: userId,
+		};
+
 		const result = await promisesService.createPromise(promiseData);
 		httpHandler(res, result);
 	};
