@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Types } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceResponse } from "@/common/models/serviceResponse";
-import type { IPairingCode } from "./pairingCodemodel";
+import type { IPairingCode } from "./pairingCodeModel";
 import { PairingCodeRepository } from "./pairingCodeRepository";
 
 export class PairingCodeService {
@@ -38,6 +38,18 @@ export class PairingCodeService {
 	async findMinePairingCode(userId: string): Promise<ServiceResponse<IPairingCode | null>> {
 		try {
 			const pairingCode = await this.pairingCodeRepository.findMinePairingCode(userId);
+			if (!pairingCode) {
+				return ServiceResponse.failure("Pairing code not found", null, StatusCodes.NOT_FOUND);
+			}
+			return ServiceResponse.success("Pairing code found successfully", pairingCode);
+		} catch (error) {
+			console.error("Error finding pairing code:", error);
+			return ServiceResponse.failure("Pairing code not found", null, StatusCodes.NOT_FOUND);
+		}
+	}
+	async findPairingCodeByCodeHash(codeHash: string): Promise<ServiceResponse<IPairingCode | null>> {
+		try {
+			const pairingCode = await this.pairingCodeRepository.findPairingCodeByCodeHash(codeHash);
 			if (!pairingCode) {
 				return ServiceResponse.failure("Pairing code not found", null, StatusCodes.NOT_FOUND);
 			}

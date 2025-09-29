@@ -47,6 +47,15 @@ class FriendRequestController {
 		const result = await friendRequestService.rejectFriendRequest(friendRequestId);
 		httpHandler(res, result);
 	};
+	sendByPairingCode: RequestHandler = async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		const { pairingCode } = req.params;
+		if (!userId) {
+			return httpHandler(res, ServiceResponse.failure("User not found", null, StatusCodes.UNAUTHORIZED));
+		}
+		const result = await friendRequestService.sendFriendRequestByPairingCode(userId, pairingCode);
+		httpHandler(res, result);
+	};
 }
 
 export const friendRequestController = new FriendRequestController();
