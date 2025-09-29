@@ -27,6 +27,11 @@ class PromisesController {
 		const result = await promisesService.findByUserId(userId);
 		httpHandler(res, result);
 	};
+	findById: RequestHandler = async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const result = await promisesService.findById(id);
+		httpHandler(res, result);
+	};
 }
 
 export const promisesController = new PromisesController();

@@ -57,6 +57,15 @@ export class PromisesService {
 			return ServiceResponse.failure("Failed to find promises", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+	async findById(id: string): Promise<ServiceResponse<PromiseData | null>> {
+		try {
+			const promise = await this.promisesRepository.findByIdAsync(id);
+			return ServiceResponse.success("Promise found successfully", promise);
+		} catch (error) {
+			console.error("Error finding promise:", error);
+			return ServiceResponse.failure("Failed to find promise", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
 
 export const promisesService = new PromisesService();

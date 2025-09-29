@@ -19,6 +19,7 @@ export interface IUser {
 	friendCodeEnabled: boolean;
 	friendCodePrivacy: FriendCodePrivacy;
 	friendAutoAccept: boolean;
+	profileNamePreference?: "name" | "displayName";
 
 	createdAt: Date;
 	updatedAt: Date;
@@ -37,6 +38,7 @@ const userSchema = new Schema<IUser>(
 		avatarUrl: { type: String, default: null },
 		friendCode: { type: String, index: true, unique: true, sparse: true }, // normalize: A-Z0-9
 		friendCodeEnabled: { type: Boolean, default: true },
+		profileNamePreference: { type: String, enum: ["name", "displayName"], default: "displayName" },
 		friendCodePrivacy: {
 			type: String,
 			enum: ["anyone", "friendsOfFriends", "off"],
