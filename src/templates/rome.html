@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link href="http://localhost:3000/public/output.css" rel="stylesheet">
+</head>
+<body class="bg-[url(/public/assets/background/stone.png)] w-full h-full min-h-screen">
+    <div class="relative w-full h-full min-h-screen rome font-bold">
+
+        <!-- Tarihler -->
+        <div class="absolute top-8 right-8 date font-semibold rome">
+            {{startAt}} - {{dueAt}}
+        </div>
+
+        <div class="px-8 py-4">
+          <div class="text-center my-10">
+            <h1 class="text-5xl font-bold mb-3 rome ">{{title}}</h1>
+            <h2 class="text-2xl font-semibold rome">{{description}}</h2>
+          </div>
+
+          <!-- Contract Content -->
+          <div class="space-y-4 text-base leading-relaxed">
+
+            <p class="text-center text-lg font-semibold mb-6 rome">
+              <em>{{latinHeader}}</em>
+            </p>
+            
+            <div class="p-4">
+              <h3 class="text-xl font-bold mb-3 rome">Terms of Agreement</h3>
+              
+              <div class="space-y-3">
+                {{#each conditions}}
+                <div class="flex items-start space-x-2">
+                  <span class="text-lg font-bold flex-shrink-0 rome">{{roman}}</span>
+                  <p class="text-base rome">{{description}}</p>
+                </div>
+                {{/each}}
+              </div>
+            </div>
+            
+            <div class="text-center mt-6">
+              <p class="text-base italic rome">
+                <em>{{footerLatin}}</em>
+              </p>
+              <p class="text-xs mt-1 rome">
+                {{footerNote}}
+              </p>
+            </div>
+            
+            <!-- Signatures -->
+            <div class="mt-12 flex justify-end gap-16 text-base font-semibold">
+              {{#each participants}}
+              <div class="text-center">
+                <p class="mb-1 rome">{{side.title}}</p>
+                <p class="text-xs mt-1 rome">{{role}}</p>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+</body>
+</html>
